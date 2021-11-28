@@ -38,4 +38,8 @@ while read line; do
     name=$(echo $line | awk '{print $3}');
     surname=$(echo $line | awk '{print $4}');
     useradd $user_id -g $user_group -c "$name $surname"
+
+    # Remove for production!
+    chpasswd <<< $user_id:123
+
 done < $USERS

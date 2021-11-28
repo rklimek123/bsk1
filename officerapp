@@ -1,0 +1,2 @@
+@include login
+auth required pam_currenttime.so
