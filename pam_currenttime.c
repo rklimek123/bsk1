@@ -17,8 +17,8 @@
 #include <security/pam_modules.h>
 #include <security/pam_ext.h>
 
-PAM_EXTERN int pam_sm_authenticate(pam_handle_t * pamh, int flags
-				   ,int argc, const char **argv)
+PAM_EXTERN int pam_sm_authenticate(pam_handle_t * pamh, int flags,
+                                   int argc, const char **argv)
 {
     int retval;
 
@@ -39,7 +39,6 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t * pamh, int flags
 	}
 
     if (strcmp(response, token) != 0) {
-        fprintf(stderr, "Wrong authorization token provided\n");
         free(response);
 		return PAM_PERM_DENIED;
     }
@@ -50,8 +49,8 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t * pamh, int flags
 
 
 #ifdef PAM_STATIC
-struct pam_module _pam_randcode_modstruct = {
-    "pam_randcode",
+struct pam_module _pam_currenttime_modstruct = {
+    "pam_currenttime",
     pam_sm_authenticate,
     NULL,
     NULL,
