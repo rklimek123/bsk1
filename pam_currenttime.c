@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -17,28 +18,24 @@
 #include <security/pam_modules.h>
 #include <security/pam_ext.h>
 
+bool checktimestamp(time_t timestamp);
+
 PAM_EXTERN int pam_sm_authenticate(pam_handle_t * pamh, int flags,
                                    int argc, const char **argv)
 {
     int retval;
 
-	srand(time(NULL));
-    int token_int = rand();
-    char token[12];
-    sprintf(token, "%d", token_int);
-
     char* response;
-    retval = pam_prompt(pamh, PAM_TEXT_INFO, &response, "Token to repeat: %s\n", token);
-    free(response);
 
-    retval = pam_prompt(pamh, PAM_PROMPT_ECHO_ON, &response, "Repeat the token: ");
+    retval = pam_prompt(pamh, PAM_PROMPT_ECHO_ON, &response,
+                "What time is it? (UNIX Epoch, run the \"python3 clock.py\" command): ");
 	if (retval != PAM_SUCCESS) {
-		fprintf(stderr, "Authorization token provide error\n");
+		fprintf(stderr, "PAM error while acquiring the timestamp\n");
         free(response);
 		return PAM_PERM_DENIED;
 	}
 
-    if (strcmp(response, token) != 0) {
+    if (!checktimestamp(atol(response))) {
         free(response);
 		return PAM_PERM_DENIED;
     }
@@ -47,6 +44,10 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t * pamh, int flags,
 	return PAM_SUCCESS;
 }
 
+bool checktimestamp(long timestamp) {
+    long now = (long)time(NULL);
+    return labs(now - timestamp) < 15;
+}
 
 #ifdef PAM_STATIC
 struct pam_module _pam_currenttime_modstruct = {
