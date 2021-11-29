@@ -6,6 +6,7 @@ RUN apt install openssh-server -y
 RUN apt install acl -y
 RUN apt install gcc -y
 RUN apt install vim -y
+RUN apt install make -y
 RUN apt install libpam0g-dev -y
 
 ### Copy user-data
@@ -22,8 +23,8 @@ COPY officerssh.c /
 COPY loop.c /
 
 ### Compile sources
-COPY compile.sh /
-RUN ./compile.sh
+COPY Makefile /
+RUN make
 
 ### SSH Configs
 COPY sshd_config /etc/ssh/sshd_config
