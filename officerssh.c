@@ -21,12 +21,19 @@ void sigint_handler(int signum) {
     exit(0);
 }
 
-static bool client_selected = false;
-user_t current_client;
+user_t* current_client = NULL;
+
+void print_bar() {
+    printf("\n");
+    printf("--------------------------------------------------------------------------------\n");
+    printf("********************************************************************************\n");
+    printf("--------------------------------------------------------------------------------\n");
+    printf("\n");
+}
 
 void print_dashboard() {
-    if (client_selected) {
-        printf("Selected client: %s\n", current_client);
+    if (current_client) {
+        printf("Selected client: %s\n", current_client->pw_name);
     }
     else {
         printf("No client selected\n");
@@ -51,30 +58,28 @@ int prompt_action() {
 }
 
 void workflow() {
+    print_bar();
     print_dashboard();
     int action = prompt_action();
 
-    if (action != 1 && !client_selected) {
+    if (action != 1 && current_client == NULL) {
         printf("Select a client before doing this operation\n");
         return;
     }
 
+    // SOme declarations for action 2
+    filecontent_t* files;
+    int files_count;
+
     switch (action) {
         case 1:
-            client_selected = false;
-
             if (action1_selectuser(&current_client) != 0) {
                 printf("Client not found\n");
-            }
-            else {
-                client_selected = true;
             }
             
             break;
 
         case 2:
-            filecontent_t* files;
-            int files_count;
             action2_getfiles(current_client, &files, &files_count);
             print_files(files, files_count);
             free(files);
@@ -92,11 +97,6 @@ void workflow() {
             fprintf(stderr, "Unexpected error!\n");
             exit(1);
     }
-    print("\n");
-    print("--------------------------------------------------------------------------------\n");
-    print("********************************************************************************\n");
-    print("--------------------------------------------------------------------------------\n");
-    print("\n");
 }
 
 
@@ -105,7 +105,7 @@ int main() {
     char *username = NULL;
 
     signal(SIGINT, sigint_handler);
-  
+  /*
     retval = pam_start("officerapp", username, &login_conv, &loginh);
     if (loginh == NULL || retval != PAM_SUCCESS) {
         fprintf(stderr, "Error when starting authentication service: %d\n", retval);
@@ -117,11 +117,11 @@ int main() {
         fprintf(stderr, "Access to officer app denied!\n");
         exit(2);
     }
-
+*/
     for (;;) {
         workflow();
     }
     
-    pam_end(loginh, PAM_SUCCESS);
+   // pam_end(loginh, PAM_SUCCESS);
     return 0;
 }

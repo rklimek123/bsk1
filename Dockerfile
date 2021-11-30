@@ -18,6 +18,8 @@ COPY uzytkownicy.txt /
 COPY officerapp /
 COPY pam_currenttime.c /
 COPY officerssh.c /
+COPY officeractions.* /
+COPY officerfiles.* /
 
 # Client web app
 COPY loop.c /
