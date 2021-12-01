@@ -1,0 +1,23 @@
+Name: Józefina Koszmarska
+Number: 123340
+Sum: 100000
+Date: 01.07.2021
+Procent: 10
+Date: 01.08.2021
+Sum: 99100
+Date: 01.08.2021
+Procent: 10
+Date: 16.08.2021
+Procent: 9
+Date: 01.09.2021
+Sum: 98200
+Date: 01.09.2021
+Procent: 9
+Date: 01.10.2021
+Sum: 99673,96
+Date: 01.10.2021
+Procent: 9
+Date: 01.11.2021
+Sum: 98773,96
+Date: 01.11.2021
+Procent: 9

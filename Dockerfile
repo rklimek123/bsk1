@@ -31,6 +31,10 @@ RUN make
 ### SSH Configs
 COPY sshd_config /etc/ssh/sshd_config
 
+### Example credit file for debugging [REMEMBER TO REMOVE]
+COPY credit_example.txt /
+COPY credit_example2.txt /
+
 ### Configure users, start ssh, start web server
 # Done here, not in RUN, because of some problems,
 # the nature of which I don't fully grasp.

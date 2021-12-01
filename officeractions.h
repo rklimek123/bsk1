@@ -1,12 +1,16 @@
 #ifndef OFFICERACTIONS_H
 #define OFFICERACTIONS_H
 
+#include <dirent.h>
 #include <grp.h>
 #include <pwd.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/file.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include "officerfiles.h"
 
 typedef struct passwd user_t;
@@ -25,7 +29,7 @@ typedef struct passwd user_t;
 
 int action1_selectuser(user_t** result);
 
-int action2_getfiles(const user_t* user, filecontent_t** result, int* result_size);
+int action2_getfiles(const user_t* user);
 
 int action3_addfile(const user_t* user);
 

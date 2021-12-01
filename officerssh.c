@@ -23,17 +23,31 @@ void sigint_handler(int signum) {
 
 user_t* current_client = NULL;
 
+void print_error(const char* msg) {
+    printf("\e[31m[ERROR] ");
+    printf(msg);
+    printf("\e[0m");
+}
+
+void print_highlight(const char* msg) {
+    printf("\e[42m");
+    printf(msg);
+    printf("\e[0m");
+}
+
 void print_bar() {
-    printf("\n");
+    printf("\n\e[38;5;240m");
     printf("--------------------------------------------------------------------------------\n");
     printf("********************************************************************************\n");
     printf("--------------------------------------------------------------------------------\n");
-    printf("\n");
+    printf("\n\e[0m");
 }
 
 void print_dashboard() {
     if (current_client) {
-        printf("Selected client: %s\n", current_client->pw_name);
+        printf("Selected client: ");
+        print_highlight(current_client->pw_name);
+        printf("\n");
     }
     else {
         printf("No client selected\n");
@@ -63,26 +77,20 @@ void workflow() {
     int action = prompt_action();
 
     if (action != 1 && current_client == NULL) {
-        printf("Select a client before doing this operation\n");
+        print_error("Select a client before doing this operation\n");
         return;
     }
-
-    // SOme declarations for action 2
-    filecontent_t* files;
-    int files_count;
 
     switch (action) {
         case 1:
             if (action1_selectuser(&current_client) != 0) {
-                printf("Client not found\n");
+                print_error("Client not found\n");
             }
             
             break;
 
         case 2:
-            action2_getfiles(current_client, &files, &files_count);
-            print_files(files, files_count);
-            free(files);
+            action2_getfiles(current_client);
             break;
 
         case 3:
@@ -118,6 +126,8 @@ int main() {
         exit(2);
     }
 */
+    // Clear screen
+    printf("\e[2J\e[H");
     for (;;) {
         workflow();
     }

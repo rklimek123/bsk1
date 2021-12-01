@@ -1,21 +1,34 @@
 #ifndef OFFICERFILES_H
 #define OFFICERFILES_H
 
+#include <pwd.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/file.h>
+#include <time.h>
+
 #define FILE_DEPOSIT 0
 #define FILE_CREDIT  1
 
-#include <stdio.h>
-
 typedef struct filecontent {
+    int fd;
     int file_type;
-    const char* content;
-
+    FILE* stream;
+    time_t start_date;
+    time_t latest_date;
+    int32_t number;
 } filecontent_t;
 
 
-int print_file(int index, filecontent_t file);
+int convert_stream(FILE* file, filecontent_t* filecontent, int fd, int type);
 
-int print_files(filecontent_t* files, int files_count);
+int sort_files(filecontent_t* files[], int files_count);
+
+void print_files(filecontent_t* files[], int files_count);
+
+void free_files(filecontent_t* files[], int files_count);
 
 
 #endif /* OFFICERFILES_H */

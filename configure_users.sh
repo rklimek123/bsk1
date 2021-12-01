@@ -43,3 +43,9 @@ while read line; do
     chpasswd <<< $user_id:123
 
 done < $USERS
+
+mv /credit_example.txt /credits/credit_example.txt
+chown user1 /credits/credit_example.txt
+
+mv /credit_example2.txt /credits/credit_example2.txt
+chown user1 /credits/credit_example2.txt
