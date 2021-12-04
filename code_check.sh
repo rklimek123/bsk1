@@ -5,3 +5,8 @@ CPPCHECK="cppcheck --enable=all -I . --suppress=missingIncludeSystem"
 $CPPCHECK officeractions.c
 $CPPCHECK officerfiles.c
 $CPPCHECK officerssh.c
+
+#-Wconversion użyty w kompilacji
+
+# Uruchomienie z valgrindem i korzystanie z aplikacji nie powoduje wypisania ostrzeżeń
+

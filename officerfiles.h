@@ -27,12 +27,12 @@ int parse_date(char* date, time_t* result);
 
 int convert_stream(FILE* file, filecontent_t* filecontent, int fd, int type, char* name);
 
-int sort_files(filecontent_t* files[], int files_count);
+int sort_files(filecontent_t* files[], size_t files_count);
 
-void print_files(filecontent_t* files[], int files_count);
-void print_file_headers(filecontent_t* files[], int files_count);
+void print_files(filecontent_t* files[], size_t files_count);
+void print_file_headers(filecontent_t* files[], size_t files_count);
 
-void free_files(filecontent_t* files[], int files_count);
+void free_files(filecontent_t* files[], size_t files_count);
 
 
 #endif /* OFFICERFILES_H */

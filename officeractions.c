@@ -1,7 +1,7 @@
 #include "officeractions.h"
 
 static int prompt(const char* msg, char** result, size_t* n) {
-    char* temp;
+    char* temp = NULL;
     
     printf("%s", msg);
     ssize_t ret = getline(&temp, n, stdin);
@@ -10,8 +10,11 @@ static int prompt(const char* msg, char** result, size_t* n) {
         exit(1);
     }
 
+    // ret >= 1
+    #pragma GCC diagnostic ignored "-Wsign-conversion"
     *n = ret - 1;
-    *result = malloc(ret);
+    #pragma GCC diagnostic pop
+    *result = malloc(*n + 1);
 
     if (*result == NULL) {
         free(temp);
@@ -19,8 +22,8 @@ static int prompt(const char* msg, char** result, size_t* n) {
         exit(1);
     }
 
-    memcpy(*result, temp, ret - 1);
-    *(*result + ret - 1) = '\0';
+    memcpy(*result, temp, *n);
+    *(*result + *n) = '\0';
     return 0;
 }
 
@@ -168,7 +171,6 @@ static int load_file(const user_t* user, filecontent_t** file, char* fname, int 
 }
 
 static int load_files_from_dir(const user_t* user, filecontent_t* files[], size_t files_count, size_t* next_index, int type) {
-    size_t result = 0;
     DIR *dirStream = NULL;
     struct stat buf;
 
@@ -198,7 +200,7 @@ static int load_files_from_dir(const user_t* user, filecontent_t* files[], size_
         if (dirEntry->d_type == DT_REG) {
             lstat(dirEntry->d_name, &buf);
             if (user == NULL || buf.st_uid == user->pw_uid) {
-                char* fname = malloc(strlen(dirEntry->d_name) * sizeof(char));
+                char* fname = malloc((strlen(dirEntry->d_name) + 1) * sizeof(char));
                 if (fname == NULL) {
                     fprintf(stderr, "unexpected malloc error\n");
                     exit(1);
@@ -218,7 +220,7 @@ static int load_files_from_dir(const user_t* user, filecontent_t* files[], size_
     closedir(dirStream);
     chdir("..");
 
-    return result;
+    return 0;
 }
 
 static int load_files(const user_t* user, filecontent_t* files[], size_t files_count) {
@@ -634,7 +636,7 @@ int a4_prompt_for_file(const user_t* user, char** result, int* type) {
     --index;
     *type = files[index]->file_type;
     char* fname = files[index]->fname;
-    char* temp = malloc(strlen(fname) * sizeof(char));
+    char* temp = malloc((strlen(fname) + 1) * sizeof(char));
     if (temp == NULL) {
         free_files(files, files_count);
         return A4_OTHER;

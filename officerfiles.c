@@ -135,13 +135,23 @@ int convert_stream(FILE* file, filecontent_t* filecontent, int fd, int type, cha
 
 int file_compare(const void* a, const void* b)
 {
-    int32_t start_date_a = ((filecontent_t*)a)->start_date;
-    int32_t start_date_b = ((filecontent_t*)b)->start_date;
+    time_t start_date_a = ((filecontent_t*)a)->start_date;
+    time_t start_date_b = ((filecontent_t*)b)->start_date;
     
-    return start_date_a - start_date_b;
+    int ret;
+    if (start_date_a > start_date_b) {
+        ret = 1; 
+    }
+    else if (start_date_a < start_date_b) {
+        ret = -1;
+    }
+    else {
+        ret = 0;
+    }
+    return ret;
 }
 
-int sort_files(filecontent_t* files[], int files_count) {
+int sort_files(filecontent_t* files[], size_t files_count) {
     qsort(files, files_count, sizeof(filecontent_t*), file_compare);
 }
 
@@ -170,7 +180,7 @@ static void print_file(int index, filecontent_t* file) {
     free(buf);
 }
 
-void print_files(filecontent_t* files[], int files_count) {
+void print_files(filecontent_t* files[], size_t files_count) {
     for (int i = 0; i < files_count; ++i) {
         printf("\n\e[38;5;238m");
         printf("--------------------------------------------------------------------------------\n");
@@ -210,7 +220,7 @@ static void print_file_header(int index, filecontent_t* file) {
     free(buf);
 }
 
-void print_file_headers(filecontent_t* files[], int files_count) {
+void print_file_headers(filecontent_t* files[], size_t files_count) {
     for (int i = 0; i < files_count; ++i) {
         printf("\n\e[38;5;238m");
         printf("--------------------------------------------------------------------------------\n");
@@ -219,7 +229,7 @@ void print_file_headers(filecontent_t* files[], int files_count) {
     }
 }
 
-void free_files(filecontent_t* files[], int files_count) {
+void free_files(filecontent_t* files[], size_t files_count) {
     for (int i = 0; i < files_count; ++i) {
         flock(files[i]->fd, LOCK_UN);
         fclose(files[i]->stream);

@@ -13,6 +13,7 @@ RUN apt install sudo -y
 ### Install code checkers
 RUN apt install apt-utils -y
 RUN apt install cppcheck -y
+RUN apt install valgrind -y
 
 ### Copy user-data
 COPY configure_users.sh /
