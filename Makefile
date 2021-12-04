@@ -1,7 +1,7 @@
 
 PAM_DIR=/lib/x86_64-linux-gnu/security
 CC=gcc
-CCFLAGS=-Wconversion
+CCFLAGS=-Wconversion -fstack-protector
 
 
 all: webserver officer

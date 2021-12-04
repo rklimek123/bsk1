@@ -6,7 +6,6 @@ $CPPCHECK officeractions.c
 $CPPCHECK officerfiles.c
 $CPPCHECK officerssh.c
 
-#-Wconversion użyty w kompilacji
+#-Wconversion i -fstack-protector użyty w kompilacji
 
 # Uruchomienie z valgrindem i korzystanie z aplikacji nie powoduje wypisania ostrzeżeń
-

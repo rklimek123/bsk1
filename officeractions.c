@@ -729,18 +729,23 @@ int action4_editfile(const user_t* user) {
 
     switch (move_int) {
         case 1:
-            writeOrDie(file->fd, "Sum: ");
+            writeOrDie(file->fd, "Date: ");
+            writeOrDie(file->fd, datestr);
+
+            writeOrDie(file->fd, "\nSum: ");
             snprintf(buf, buf_size, "%f", sum);
             writeOrDie(file->fd, buf);
-
-            writeOrDie(file->fd, "\nDate: ");
-            writeOrDie(file->fd, datestr);
             writeOrDie(file->fd, "\n");
         case 2:
-            writeOrDie(file->fd, "Procent: ");
+            writeOrDie(file->fd, "Date: ");
+            writeOrDie(file->fd, datestr);
+
+            writeOrDie(file->fd, "\nProcent: ");
             snprintf(buf, buf_size, "%f", procent);
             writeOrDie(file->fd, buf);
             writeOrDie(file->fd, "\n");
+            break;
+            
         case 3:
             writeOrDie(file->fd, "Date: ");
             writeOrDie(file->fd, datestr);
