@@ -1,13 +1,5 @@
 #include "officeractions.h"
 
-static void fake_getline() {
-    char* temp;
-    size_t n = 0;
-    // Fake getline to get empty '\n'
-    getline(&temp, &n, stdin);
-    free(temp);
-}
-
 static int prompt(const char* msg, char** result, size_t* n) {
     char* temp;
     
@@ -258,7 +250,7 @@ int action2_getfiles(const user_t* user) {
     size_t files_count = count_files(user);
     filecontent_t* files[files_count];
 
-    printf("Loading %ld files\n", files_count);
+    printf("Loading %lu files\n", (unsigned long)files_count);
     if (load_files(user, files, files_count) != 0) {
         fprintf(stderr, "Load files error\n");
         return 1;
@@ -281,7 +273,6 @@ int action2_getfiles(const user_t* user) {
 static int a3_getType() {
     char* typestr;
     size_t typestr_len = 0;
-    user_t* result;
 
     if (prompt("File type: ", &typestr, &typestr_len) != 0) {
         fprintf(stderr, "Op. 3: Input filetype error\n");
@@ -462,7 +453,6 @@ int a3_newFile(const user_t* user, int type, double sum, char* start_date_str, d
         exit(1);
     }
 
-    ssize_t ret;
     size_t buf_size = 512;
     char buf[buf_size];
     
@@ -614,7 +604,7 @@ int a4_prompt_for_file(const user_t* user, char** result, int* type) {
     size_t files_count = count_files(user);
     filecontent_t* files[files_count];
 
-    printf("Loading %ld files\n", files_count);
+    printf("Loading %lu files\n", (unsigned long)files_count);
     if (load_files(user, files, files_count) != 0) {
         fprintf(stderr, "Load files error\n");
         return A4_OTHER;

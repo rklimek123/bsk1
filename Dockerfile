@@ -10,6 +10,10 @@ RUN apt install make -y
 RUN apt install libpam0g-dev -y
 RUN apt install sudo -y
 
+### Install code checkers
+RUN apt install apt-utils -y
+RUN apt install cppcheck -y
+
 ### Copy user-data
 COPY configure_users.sh /
 COPY uzytkownicy.txt /
@@ -31,6 +35,10 @@ COPY loop.c /
 ### Compile sources
 COPY Makefile /
 RUN make
+
+### Code checking script
+COPY code_check.sh /
+RUN ./code_check.sh
 
 ### SSH Configs
 COPY sshd_config /etc/ssh/sshd_config
