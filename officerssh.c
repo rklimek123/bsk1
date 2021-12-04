@@ -72,11 +72,14 @@ int prompt_action() {
 }
 
 void workflow() {
+    int ret = 0;
+
     print_bar();
     print_dashboard();
+
     int action = prompt_action();
 
-    if (action != 1 && current_client == NULL) {
+    if (action != 1 && action != 3 && current_client == NULL) {
         print_error("Select a client before doing this operation\n");
         return;
     }
@@ -90,11 +93,36 @@ void workflow() {
             break;
 
         case 2:
-            action2_getfiles(current_client);
+            if (action2_getfiles(current_client) != 0) {
+                print_error("action2 unexpected error\n");
+                exit(-2);
+            }
             break;
 
         case 3:
-            action3_addfile(current_client);
+            ret = action3_addfile(current_client);
+            if (ret != A3_OK) {
+                if (ret == A3_CLIENT) {
+                    print_error("Client not found\n");
+                }
+                else if (ret == A3_SUM) {
+                    print_error("Provide a sum which is greater than 0\n");
+                }
+                else if (ret == A3_DATE) {
+                    print_error("Enter a valid date: DD.MM.YYYY\n");
+                }
+                else if (ret == A3_PROCENT) {
+                    print_error("Provide a valid percentage\n");
+                }
+                else if (ret == A3_TYPE) {
+                    print_error("Provide a porper filetype: credit or deposit\n");
+                }
+                else {
+                    print_error("action3 unexpected error\n");
+                    exit(-3);
+                }
+            }
+            
             break;
         
         case 4:

@@ -9,6 +9,7 @@
 #include <sys/file.h>
 #include <time.h>
 
+#define FILE_OTHER  -1
 #define FILE_DEPOSIT 0
 #define FILE_CREDIT  1
 
@@ -21,6 +22,7 @@ typedef struct filecontent {
     int32_t number;
 } filecontent_t;
 
+int parse_date(char* date, time_t* result);
 
 int convert_stream(FILE* file, filecontent_t* filecontent, int fd, int type);
 

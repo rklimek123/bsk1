@@ -31,6 +31,10 @@ setfacl -m group:officer:rwx credits
 setfacl -d -m group:officer:rw- deposits
 setfacl -d -m group:officer:rw- credits
 
+# Locks
+setfacl -m group:officer:rw- add_credit.lck
+setfacl -m group:officer:rw- add_deposit.lck
+
 
 while read line; do
     user_id=$(echo $line | awk '{print $1}');

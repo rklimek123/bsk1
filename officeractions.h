@@ -2,6 +2,7 @@
 #define OFFICERACTIONS_H
 
 #include <dirent.h>
+#include <errno.h>
 #include <grp.h>
 #include <pwd.h>
 #include <stdbool.h>
@@ -31,7 +32,17 @@ int action1_selectuser(user_t** result);
 
 int action2_getfiles(const user_t* user);
 
-int action3_addfile(const user_t* user);
+
+#define A3_OK      0
+#define A3_CLIENT  1
+#define A3_SUM     2
+#define A3_DATE    3
+#define A3_PROCENT 4
+#define A3_TYPE    5
+#define A3_OTHER  -1
+
+int action3_addfile(const user_t* defaultUser);
+
 
 int action4_editfile(const user_t* user);
 

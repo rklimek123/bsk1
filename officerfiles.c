@@ -1,9 +1,10 @@
 #include "officerfiles.h"
 
-static int parse_date(char* date, time_t* result) {
+int parse_date(char* date, time_t* result) {
     // DD-MM-YYYY
     date[2] = '\0';
     date[5] = '\0';
+    date[10] = '\0';
 
     int day = atoi(date);
     if (day == 0) {
@@ -25,6 +26,8 @@ static int parse_date(char* date, time_t* result) {
 
     // Not unix epoch, but some other time, which allows for comparisons
     *result = day + 100*month + 10000*year;
+    date[2] = '.';
+    date[5] = '.';
     return 0;
 }
 
@@ -173,7 +176,6 @@ void print_files(filecontent_t* files[], int files_count) {
         print_file(i + 1, files[i]);
     }
 }
-
 
 void free_files(filecontent_t* files[], int files_count) {
     for (int i = 0; i < files_count; ++i) {
