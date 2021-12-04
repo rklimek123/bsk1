@@ -16,6 +16,7 @@
 typedef struct filecontent {
     int fd;
     int file_type;
+    char* fname;
     FILE* stream;
     time_t start_date;
     time_t latest_date;
@@ -24,11 +25,12 @@ typedef struct filecontent {
 
 int parse_date(char* date, time_t* result);
 
-int convert_stream(FILE* file, filecontent_t* filecontent, int fd, int type);
+int convert_stream(FILE* file, filecontent_t* filecontent, int fd, int type, char* name);
 
 int sort_files(filecontent_t* files[], int files_count);
 
 void print_files(filecontent_t* files[], int files_count);
+void print_file_headers(filecontent_t* files[], int files_count);
 
 void free_files(filecontent_t* files[], int files_count);
 

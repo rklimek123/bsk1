@@ -35,10 +35,6 @@ RUN make
 ### SSH Configs
 COPY sshd_config /etc/ssh/sshd_config
 
-### Example credit file for debugging [REMEMBER TO REMOVE]
-COPY credit_example.txt /
-COPY credit_example2.txt /
-
 ### Lock used when adding credits/deposits,
 ### to atomically check for the next document number
 ### and add a document with that number.

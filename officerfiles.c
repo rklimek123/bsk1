@@ -83,6 +83,7 @@ static int get_latest_date(FILE* file, time_t* result) {
 
     free(buf);
     rewind(file);
+    
     return !datefound;
 }
 
@@ -114,10 +115,11 @@ static int get_number(FILE* file, int32_t* result) {
     return -1;
 }
 
-int convert_stream(FILE* file, filecontent_t* filecontent, int fd, int type) {
+int convert_stream(FILE* file, filecontent_t* filecontent, int fd, int type, char* name) {
     filecontent->fd = fd;
     filecontent->file_type = type;
     filecontent->stream = file;
+    filecontent->fname = name;
 
     if (get_start_date(file, &(filecontent->start_date))   != 0 ||
         get_latest_date(file, &(filecontent->latest_date)) != 0 ||
@@ -177,10 +179,51 @@ void print_files(filecontent_t* files[], int files_count) {
     }
 }
 
+static void print_file_header(int index, filecontent_t* file) {
+    printf("File %d | ", index);
+    if (file->file_type == FILE_CREDIT) {
+        printf("CREDIT");
+    }
+    else if (file->file_type == FILE_DEPOSIT) {
+        printf("DEPOSIT");
+    }
+    else {
+        printf("UNKNOWN TYPE");
+    }
+    printf("\n");
+
+    char* buf = NULL;
+    size_t n = 0;
+
+    if (getline(&buf, &n, file->stream) == -1) {
+        fprintf(stderr, "File corrupted\n");
+        exit(1);
+    }
+
+    if (getline(&buf, &n, file->stream) == -1) {
+        fprintf(stderr, "File corrupted\n");
+        exit(1);
+    }
+
+    printf(buf);
+    rewind(file->stream);
+    free(buf);
+}
+
+void print_file_headers(filecontent_t* files[], int files_count) {
+    for (int i = 0; i < files_count; ++i) {
+        printf("\n\e[38;5;238m");
+        printf("--------------------------------------------------------------------------------\n");
+        printf("\n\e[0m");
+        print_file_header(i + 1, files[i]);
+    }
+}
+
 void free_files(filecontent_t* files[], int files_count) {
     for (int i = 0; i < files_count; ++i) {
         flock(files[i]->fd, LOCK_UN);
         fclose(files[i]->stream);
+        free(files[i]->fname);
         free(*(files + i));
     }
 }

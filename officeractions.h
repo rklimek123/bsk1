@@ -44,6 +44,14 @@ int action2_getfiles(const user_t* user);
 int action3_addfile(const user_t* defaultUser);
 
 
+#define A4_OK      0
+#define A4_INDEX   1
+#define A4_MOVE    2
+#define A4_SUM     3
+#define A4_DATE    4
+#define A4_PROCENT 5
+#define A4_OTHER  -1
+
 int action4_editfile(const user_t* user);
 
 

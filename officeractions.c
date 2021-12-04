@@ -81,8 +81,6 @@ int action1_selectuser(user_t** result) {
     char* username;
     size_t username_len = 0;
 
-    fake_getline();
-
     if (prompt("Input username: ", &username, &username_len) != 0) {
         return -1;
     }
@@ -139,7 +137,7 @@ static size_t count_files(const user_t* user) {
            count_files_in_dir(user, "deposits");
 }
 
-static int load_file(const user_t* user, filecontent_t** file, const char* fname, int type) {
+static int load_file(const user_t* user, filecontent_t** file, char* fname, int type) {
 
     *file = malloc(sizeof(filecontent_t));
     if (*file == NULL) {
@@ -167,7 +165,7 @@ static int load_file(const user_t* user, filecontent_t** file, const char* fname
         return 1;
     }
 
-    if (convert_stream(f, *file, fd, type) != 0) {
+    if (convert_stream(f, *file, fd, type, fname) != 0) {
         flock(fd, LOCK_UN);
         fclose(f);
         free(*file);
@@ -208,7 +206,15 @@ static int load_files_from_dir(const user_t* user, filecontent_t* files[], size_
         if (dirEntry->d_type == DT_REG) {
             lstat(dirEntry->d_name, &buf);
             if (user == NULL || buf.st_uid == user->pw_uid) {
-                if (load_file(user, files + *next_index, dirEntry->d_name, type) != 0) {
+                char* fname = malloc(strlen(dirEntry->d_name) * sizeof(char));
+                if (fname == NULL) {
+                    fprintf(stderr, "unexpected malloc error\n");
+                    exit(1);
+                }
+
+                strcpy(fname, dirEntry->d_name);
+
+                if (load_file(user, files + *next_index, fname, type) != 0) {
                     fprintf(stderr, "Load file error\n");
                     return 1;
                 }
@@ -427,23 +433,7 @@ void writeOrDie(int fd, const char* str) {
     }
 }
 
-void place_canaries(char* buffer, size_t size) {
-    if (size >= 4) {
-        buffer[size - 4] = '\0';
-        buffer[size - 3] = 233;
-        buffer[size - 2] = 179;
-        buffer[size - 1] = 165;
-    }
-}
-
-bool check_canaries(char* buffer, size_t size) {
-    return
-        buffer[size - 3] == 233 &&
-        buffer[size - 2] == 179 &&
-        buffer[size - 1] == 165;
-}
-
-int a3_newFile(const user_t* user, int type, double sum, char* start_date_str, double procent, int32_t number) {
+void chdir_type(int type) {
     const char* dirc;
     if (type == FILE_CREDIT) {
         dirc = "/credits";
@@ -458,6 +448,10 @@ int a3_newFile(const user_t* user, int type, double sum, char* start_date_str, d
     if (chdir(dirc) != 0) {
         exit(1);
     }
+}
+
+int a3_newFile(const user_t* user, int type, double sum, char* start_date_str, double procent, int32_t number) {
+    chdir_type(type);
 
     char filename[20];
     a3_numbertostr(type, number, filename);
@@ -515,8 +509,6 @@ int action3_addfile(const user_t* defaultUser) {
     char* start_date_str;
     time_t start_date;
     double procent;
-
-    fake_getline();
 
     type = a3_getType();
     if (type != FILE_CREDIT && type != FILE_DEPOSIT) {
@@ -576,6 +568,198 @@ int action3_addfile(const user_t* defaultUser) {
 }
 
 
-int action4_editfile(const user_t* user) {
+
+static const char* a4_print_moves =
+    "\e[23mWhat kind of entry do you want to append:\e[0m\n1. Sum Procent Date\n2. Procent Date\n3. Date\n\n";
+
+static int load_file_write(const user_t* user, filecontent_t** file, char* fname, int type) {
+
+    *file = malloc(sizeof(filecontent_t));
+    if (*file == NULL) {
+        fprintf(stderr, "Malloc error\n");
+        return 1;
+    }
+
+    FILE* f = fopen(fname, "a+");
+    if (f == NULL) {
+        fprintf(stderr, "fopen %s error\n", fname);
+        free(*file);
+        return 1;
+    }
+
+    int fd = fileno(f);
+    if (fd == -1) {
+        fclose(f);
+        free(*file);
+        return 1;
+    }
+
+    if (flock(fd, LOCK_EX) != 0) {
+        fclose(f);
+        free(*file);
+        return 1;
+    }
+
+    if (convert_stream(f, *file, fd, type, fname) != 0) {
+        flock(fd, LOCK_UN);
+        fclose(f);
+        free(*file);
+        return 1;
+    }
+
     return 0;
+}
+
+int a4_prompt_for_file(const user_t* user, char** result, int* type) {
+    size_t files_count = count_files(user);
+    filecontent_t* files[files_count];
+
+    printf("Loading %ld files\n", files_count);
+    if (load_files(user, files, files_count) != 0) {
+        fprintf(stderr, "Load files error\n");
+        return A4_OTHER;
+    }
+
+    if (sort_files(files, files_count) != 0) {
+        free_files(files, files_count);
+        fprintf(stderr, "Sort files error\n");
+        return A4_OTHER;
+    }
+
+    print_file_headers(files, files_count);
+
+    double ret = a3_getPositiveDouble("Choose a file by index: ");
+
+    if (ret <= 0) {
+        free_files(files, files_count);
+        return A4_INDEX;
+    }
+    
+    int index = (int)ret;
+    if ((size_t)index > files_count) {
+        free_files(files, files_count);
+        return A4_INDEX;
+    }
+
+    --index;
+    *type = files[index]->file_type;
+    char* fname = files[index]->fname;
+    char* temp = malloc(strlen(fname) * sizeof(char));
+    if (temp == NULL) {
+        free_files(files, files_count);
+        return A4_OTHER;
+    }
+    strcpy(temp, fname);
+    free_files(files, files_count);
+    *result = temp;
+    return A4_OK;
+}
+
+int action4_editfile(const user_t* user) {
+    if (user == NULL) {
+        fprintf(stderr, "User is null\n");
+        return A4_OTHER;
+    }
+
+    char* filename = NULL;
+    int type = 0;
+
+    int ret = a4_prompt_for_file(user, &filename, &type);
+    if (ret != A4_OK) {
+        return ret;
+    }
+
+    char* move = NULL;
+    size_t move_len = 0;
+    if (prompt(a4_print_moves, &move, &move_len) != 0) {
+        free(filename);
+        fprintf(stderr, "Getline error");
+        return A4_OTHER;
+    }
+
+    int move_int = atoi(move);
+    free(move);
+
+    double sum = 0;
+    double procent = 0;
+    time_t date = 0;
+    char* datestr = NULL;
+
+    switch (move_int) {
+        case 1:
+            if (a3_getDouble("Sum: ", &sum) != 0) {
+               free(filename);
+               return A4_SUM;
+            }
+        case 2:
+            if (a3_getDouble("Procent: ", &procent) != 0) {
+                free(filename);
+                return A4_PROCENT;
+            }
+        case 3:
+            date = a3_getDate("Date: ", &datestr);
+            if (date == -1) {
+                free(filename);
+                return A4_DATE;
+            }
+            break;
+        
+        default:
+            free(filename);
+            return A4_MOVE;
+    }
+
+    filecontent_t* file = malloc(sizeof(filecontent_t));
+    if (file == NULL) {
+        free(filename);
+        free(datestr);
+        return A4_OTHER;
+    }
+
+    chdir_type(type);
+    if (load_file_write(user, &file, filename, type) != 0) {
+        free(file);
+        free(filename);
+        free(datestr);
+        return A4_OTHER;
+    }
+    chdir("..");
+
+    if (file->latest_date >= date) {
+        free_files(&file, 1);
+        free(datestr);
+        return A4_DATE;
+    }
+
+
+    size_t buf_size = 512;
+    char buf[buf_size];
+
+    switch (move_int) {
+        case 1:
+            writeOrDie(file->fd, "Sum: ");
+            snprintf(buf, buf_size, "%f", sum);
+            writeOrDie(file->fd, buf);
+
+            writeOrDie(file->fd, "\nDate: ");
+            writeOrDie(file->fd, datestr);
+            writeOrDie(file->fd, "\n");
+        case 2:
+            writeOrDie(file->fd, "Procent: ");
+            snprintf(buf, buf_size, "%f", procent);
+            writeOrDie(file->fd, buf);
+            writeOrDie(file->fd, "\n");
+        case 3:
+            writeOrDie(file->fd, "Date: ");
+            writeOrDie(file->fd, datestr);
+            writeOrDie(file->fd, "\n");
+            break;
+        
+        default:
+            fprintf(stderr, "unreachable code reached\n");
+            exit(1);
+    }
+
+    free_files(&file, 1);
+    return A4_OK;
 }

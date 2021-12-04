@@ -44,12 +44,6 @@ while read line; do
     useradd $user_id -g $user_group -c "$name $surname"
 
     # Remove for production!
-    chpasswd <<< $user_id:123
+    # chpasswd <<< $user_id:123
 
 done < $USERS
-
-mv /credit_example.txt /credits/credit_example.txt
-chown user1 /credits/credit_example.txt
-
-mv /credit_example2.txt /credits/credit_example2.txt
-chown user1 /credits/credit_example2.txt
