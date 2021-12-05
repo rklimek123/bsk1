@@ -1,4 +1,4 @@
-FROM debian:buster
+FROM debian:bullseye
 
 ### Install
 RUN apt-get update
@@ -9,6 +9,8 @@ RUN apt install vim -y
 RUN apt install make -y
 RUN apt install libpam0g-dev -y
 RUN apt install sudo -y
+RUN apt install kmod -y
+RUN apt install nftables -y
 
 ### Install code checkers
 RUN apt install apt-utils -y
@@ -49,6 +51,10 @@ COPY sshd_config /etc/ssh/sshd_config
 ### and add a document with that number.
 COPY add_credit.lck /
 COPY add_deposit.lck /
+
+### Firewall rules
+COPY firewall.nft /
+RUN nft -f ./firewall.nft
 
 ### Configure users, start ssh, start web server
 # Done here, not in RUN, because of some problems,

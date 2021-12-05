@@ -1,0 +1,11 @@
+delete table inet bsk1
+create table inet bsk1
+add chain inet bsk1 INNER { type filter hook input priority 30; policy drop ;}
+
+add rule inet bsk1 INNER tcp dport http accept
+add rule inet bsk1 INNER tcp dport https accept
+add rule inet bsk1 INNER tcp dport ssh accept
+add rule inet bsk1 INNER udp dport http accept
+add rule inet bsk1 INNER udp dport https accept
+add rule inet bsk1 INNER udp dport ssh accept
+add rule inet bsk1 INNER icmp type {echo-reply, destination-unreachable, source-quench, redirect, echo-request, time-exceeded, parameter-problem, timestamp-request, timestamp-reply, info-request, info-reply, address-mask-request, address-mask-reply, router-advertisement, router-solicitation}
