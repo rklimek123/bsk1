@@ -53,8 +53,8 @@ COPY add_credit.lck /
 COPY add_deposit.lck /
 
 ### Firewall rules
-COPY firewall.nft /
-RUN nft -f ./firewall.nft
+# COPY firewall.nft /
+# RUN nft -f ./firewall.nft
 
 ### Configure users, start ssh, start web server
 # Done here, not in RUN, because of some problems,
